@@ -111,7 +111,7 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
-        if (millis() - time > 10000) { // Time in undistorted state
+        if (millis() - time > 20000) { // Time in undistorted state
           time = millis();
           bsState = BSState.BLUESCREEN;
         }

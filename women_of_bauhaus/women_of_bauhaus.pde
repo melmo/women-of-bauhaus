@@ -23,11 +23,7 @@ void settings() {
 
 
 void setup() {
-  
   surface.setSize(rotate ? 1024 : 576, rotate ? 576 : 1024);
-  
-  //surface.setSize(576,1024);
-  surface.setLocation(500,30);
   surface.hideCursor();
   bs = new BlueScreen();
   bs.setDimensions(rotate ? 1024 : 576, rotate ? 576 : 1024);
@@ -38,13 +34,11 @@ void draw() {
   fill(255);
   pushMatrix();
   if (rotate) {
-    translate(1024/2,-220,0);
+    translate(800, -190, -650);
     rotateZ(PI/2);   
   }
   bs.loop();
-  
   popMatrix();
-  
 }
 
 

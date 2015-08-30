@@ -22,7 +22,7 @@ class Animation {
   float k = 0.1;
   float c = 0.01;
   float cubismEffect = 1.0; // Obscures image with cubism effect - ranges from 0.0 to 1.0
-  color bg = color(0, 0, 75);
+  color bg = color(0, 0, 255);
   int lightUp = 0;
   float zTranslate;
   
@@ -93,7 +93,7 @@ class Animation {
   void initDistorted(String fileName) { // Re-initialises sketch and loads file
     localFrameCount = 1;
     cubismEffect = 1.0; // Obscures image with cubism effect - ranges from 0.0 to 1.0
-    bg = color(0, 0, 75);
+    bg = color(0, 0, 255);
     lightUp = 0;
     
     miniSquareDistortion = 0.0;
@@ -132,8 +132,8 @@ class Animation {
       elementWidth = flag.height / numMax;
       numa = flag.width / (int)elementWidth;
     }
-    zTranslate = ((localWidth - 30) - flag.width) * 1.42298;
-    //zTranslate = zTranslate * 5.0;
+    //zTranslate = ((localWidth - 30) - flag.width) * 1.42298;
+    
 
     texlightShader.set("magnitude", magnitude); // Magnitude of vector distortion in vertex shader
     texlightShader.set("offset", 0.25);
@@ -170,10 +170,12 @@ class Animation {
   }
   
   void runAnimation() { // run from draw() in Mel's sketch
+/*
     if(lightUp > 0) {
       bg = color(75 - abs(75 - lightUp), 75 - abs(75 - lightUp), 150 - abs(75 - lightUp));
       lightUp -= 1;
     }
+*/
     if(!distorted) { // undistorting image
       if(transparency < 255) {
         transparency++;
@@ -301,7 +303,7 @@ class Animation {
   void undistort() { // undistort the image
     if(distorted) {
       distorted = false;
-      lightUp = 150;
+      //lightUp = 150;
     }
   }
 
@@ -328,11 +330,12 @@ class Animation {
         facingViewer = true;
       }
     }
+    zTranslate = ((localWidth - 30) - flag.width) * 1.92298;
 
       // Go to default position
-      translate((localWidth - flag.width) / 2.2, (localHeight - flag.height) / 2.0 , zTranslate );
+      translate((localWidth - flag.width) / 2.45, (localHeight - flag.height) / 2.0 , zTranslate );
       fill(255,0,0);
-      rect(0,0,localHeight,localWidth);
+      rect(0,0,flag.width,flag.height);
 
       // Rotation about the x-axis
       translate(0, flag.height / 2 - (flag.height / 2) * (cos(xRotation * 2 * PI)), -sin(xRotation * 2 * PI) * flag.height / 2);
