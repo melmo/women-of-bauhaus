@@ -25,6 +25,7 @@ class Animation {
   color bg = color(0, 0, 255);
   int lightUp = 0;
   float zTranslate;
+  boolean rotate = false;
   
   // Mini-square distortion
   float miniSquareDistortion = 0.0;
@@ -80,14 +81,10 @@ class Animation {
 
   public Animation(){
   }
-  void setDimensions(int theWidth, int theHeight) {
+  void setDimensions(int theWidth, int theHeight, boolean rotate) {
     localWidth = theWidth;
     localHeight = theHeight;
-    if (theWidth > theHeight) {
-      positionOffset = 220; 
-    } else {
-      positionOffset = 0;
-    }
+    this.rotate = rotate;
   }
 
   void initDistorted(String fileName) { // Re-initialises sketch and loads file
@@ -330,12 +327,16 @@ class Animation {
         facingViewer = true;
       }
     }
-    zTranslate = ((localWidth - 30) - flag.width) * 1.92298;
+    
+      if (rotate) {
+        translate(35, -350, -800);
+      }
+      zTranslate = ((localWidth - 30) - flag.width) * 1.92298;
 
       // Go to default position
       translate((localWidth - flag.width) / 2.45, (localHeight - flag.height) / 2.0 , zTranslate );
       fill(255,0,0);
-      rect(0,0,flag.width,flag.height);
+      //rect(0,0,flag.width,flag.height);
 
       // Rotation about the x-axis
       translate(0, flag.height / 2 - (flag.height / 2) * (cos(xRotation * 2 * PI)), -sin(xRotation * 2 * PI) * flag.height / 2);

@@ -39,16 +39,17 @@ class BlueScreen {
     
   }
   
-  void setDimensions(int theWidth, int theHeight) {
+  void setDimensions(int theWidth, int theHeight, boolean rotate) {
     localWidth = theWidth;
     localHeight = theHeight;
-    anim.setDimensions( theWidth,  theHeight);
+    anim.setDimensions( theWidth,  theHeight, rotate);
   }
   
   void start() {
     bsState = BSState.DISTORTED;
     time = millis();
     al.setQuery(artworks[currentWork].hashtag);
+     println(artworks[currentWork].hashtag);
     thread("pollQuery");
     anim.initDistorted("Pictures/" + artworks[currentWork].filename);
   }
@@ -85,7 +86,10 @@ class BlueScreen {
     textAlign(CENTER);
     textSize(28);
     textFont(bsFont);
+    //text("#" + hashtag, 0, localHeight - 200, localWidth, 100);
+    fill(255);
     text("#" + hashtag, 0, localHeight - 200, localWidth, 100);
+    //rect(0, localHeight - 200, localWidth, 100);
     
   }
   
@@ -111,7 +115,7 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
-        if (millis() - time > 20000) { // Time in undistorted state
+        if (millis() - time > 200) { // Time in undistorted state
           time = millis();
           bsState = BSState.BLUESCREEN;
         }
