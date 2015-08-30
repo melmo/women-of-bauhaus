@@ -82,14 +82,18 @@ class BlueScreen {
     bsodCursor++;
   }
   
-  void showTag(String hashtag) {
+  void showTag() {
     textAlign(CENTER);
     textSize(28);
     textFont(bsFont);
-    //text("#" + hashtag, 0, localHeight - 200, localWidth, 100);
     fill(255);
-    text("#" + hashtag, 0, localHeight - 200, localWidth, 100);
-    //rect(0, localHeight - 200, localWidth, 100);
+    text("#" + artworks[currentWork].hashtag, 0, localHeight - 200, localWidth, 100);
+    switch(bsState) {
+      case UNDISTORTED :
+        text(artworks[currentWork].title, 0, localHeight - 150, localWidth, 100);
+        break;
+    }
+    
     
   }
   
@@ -103,8 +107,8 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
-        showTag(artworks[currentWork].hashtag);
-        if (millis() - time > 100000) {
+        showTag();
+        if (millis() - time > 100000) { // should be 420000 (7 minutes)
           time = millis();
           bsodCursor = 0;
           bsState = BSState.BSOD;
@@ -115,23 +119,22 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
-        if (millis() - time > 200) { // Time in undistorted state
+        showTag();
+        if (millis() - time > 2000) { // Should be 240000 (4 minutes)
           time = millis();
           bsState = BSState.BLUESCREEN;
         }
       break;
       case BSOD :
         showBSOD();
-        if (millis() - time > 30000) {
+        if (millis() - time > 30000) { // should be 90000 (90 seconds)
           time = millis();
           bsState = BSState.BLUESCREEN;
         }
       break;
       case BLUESCREEN :
         background(0,0,255,25);
-        //rect(0,0,localWidth,height);
         fill(255);
-        //text("BLUESCREEN", 200.0,300.0,0.0);
         if (millis() - time > 200) {
           time = millis();
           currentWork++;
