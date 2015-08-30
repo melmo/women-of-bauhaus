@@ -6,6 +6,9 @@ PShader texlightShader;
 float time = 0.0; // Cycles from 0.0 to 1.0 and starts again to animate the torus
 
 class Animation {
+  int localWidth = width;
+  int localHeight = height;
+  int positionOffset = 0;
   int localFrameCount;
   int numMax = 35; // divisions along larger axis (height or width of image)
   int numa = numMax; // number of columns
@@ -77,6 +80,15 @@ class Animation {
 
   public Animation(){
   }
+  void setDimensions(int theWidth, int theHeight) {
+    localWidth = theWidth;
+    localHeight = theHeight;
+    if (theWidth > theHeight) {
+      positionOffset = 220; 
+    } else {
+      positionOffset = 0;
+    }
+  }
 
   void initDistorted(String fileName) { // Re-initialises sketch and loads file
     localFrameCount = 1;
@@ -120,7 +132,8 @@ class Animation {
       elementWidth = flag.height / numMax;
       numa = flag.width / (int)elementWidth;
     }
-    zTranslate = ((width - 30) - flag.width) * 1.42298;
+    zTranslate = ((localWidth - 30) - flag.width) * 1.42298;
+    //zTranslate = zTranslate * 5.0;
 
     texlightShader.set("magnitude", magnitude); // Magnitude of vector distortion in vertex shader
     texlightShader.set("offset", 0.25);
@@ -144,7 +157,7 @@ class Animation {
 
     // Initialise positions of lights
     for(int i = 0; i < numLights; i++) {
-      lightsPos[i] = new PVector(int(random(width)), (int)random (width * 0.8) + width * 0.1, int(random(-10.0,10.0)));
+      lightsPos[i] = new PVector(int(random(localWidth)), (int)random (localWidth * 0.8) + localWidth * 0.1, int(random(-10.0,10.0)));
     }
 
     texlightShader.set("SpecularFocus", specularFocus);
@@ -235,7 +248,7 @@ class Animation {
       }
   
       if(!setWindowPosition){
-        //surface.setLocation(10, 10);
+        //surface.setLocation(displayWidth/2 - width/2, displayHeight/2 - height/2);
         setWindowPosition = true;
       }
     }
@@ -248,10 +261,16 @@ class Animation {
     time = (localFrameCount % 500) / 500.0;
     texlightShader.set("breathCycle", time);
     
-    background(bg);
+    //background(bg);
+    background(0);
+    fill(bg);
+    pushMatrix();
+    translate(0,0,-3000);
+    box(10000.0,10000.0,2.0);
+    popMatrix();
     physics(); // Apply physical forces
-    pointLight(255, 255, 255, width / 3, height / 3, 0);
-    pointLight(255, 255, 255, -width / 3, -height / 3, 0);
+    pointLight(255, 255, 255, localWidth / 3, localHeight / 3, 0);
+    pointLight(255, 255, 255, -localWidth / 3, -localHeight / 3, 0);
 
     //Zubi translations and rotations
     applyTransformations();
@@ -260,15 +279,15 @@ class Animation {
     for (int i = 0;i < numLights; i++) {
       PVector lp = lightsPos[i];
       // Lights don't turn suddenly on and off, they fade on and off as they come on and off screen
-      int intensity = int(sin((lp.y + 500)/(height + 1000) * PI) * 100);
+      int intensity = int(sin((lp.y + 500)/(localHeight + 1000) * PI) * 100);
       pointLight(intensity, intensity, intensity, lp.x, lp.y, lp.z); // Set the brightness of the lights so the texlight shader reflects light properly
       
-      int speedOfLightFall = height / 30;
+      int speedOfLightFall = localHeight / 30;
       // Increment the position of the lights so that they appear to fall
-      lp.y = lp.y + (i + 1) * map(speedOfLightFall, height, 0, 0, 20);
+      lp.y = lp.y + (i + 1) * map(speedOfLightFall, localHeight, 0, 0, 20);
       // Reset if required
-      if (lp.y > height + 500) {
-        lp.x = int(random(width));
+      if (lp.y > localHeight + 500) {
+        lp.x = int(random(localWidth));
         lp.y = -500;
         lp.z = int(random(-10.0,10.0));
       }
@@ -311,7 +330,9 @@ class Animation {
     }
 
       // Go to default position
-      translate((width - flag.width) / 2.2, (height - flag.height) / 2.0, zTranslate);
+      translate((localWidth - flag.width) / 2.2, (localHeight - flag.height) / 2.0 , zTranslate );
+      fill(255,0,0);
+      rect(0,0,localHeight,localWidth);
 
       // Rotation about the x-axis
       translate(0, flag.height / 2 - (flag.height / 2) * (cos(xRotation * 2 * PI)), -sin(xRotation * 2 * PI) * flag.height / 2);
@@ -378,11 +399,11 @@ class Animation {
   void reset(){
     for (int i=0; i<numa; i++){
       for (int j=0; j<numb; j++){
-        Init[i][j] = new PVector(elementWidth * (i) + 0 * width/4,
-                              elementWidth * (j) + 0 * height/4,
+        Init[i][j] = new PVector(elementWidth * (i) + 0 * localWidth/4,
+                              elementWidth * (j) + 0 * localHeight/4,
                               random(-0.1,0.1));
-        X[i][j] = new PVector(elementWidth * (i) + 0 * width/4,
-                              elementWidth * (j) + 0 * height/4,
+        X[i][j] = new PVector(elementWidth * (i) + 0 * localWidth/4,
+                              elementWidth * (j) + 0 * localHeight/4,
                               random(-0.1,0.1));
         V[i][j] = new PVector();
       }

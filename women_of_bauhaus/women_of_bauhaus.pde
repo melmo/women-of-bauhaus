@@ -13,27 +13,40 @@ import twitter4j.TwitterStreamFactory;
 import twitter4j.FilterQuery;
 import twitter4j.conf.ConfigurationBuilder;
 
-void init()
-{
- frame.removeNotify();
- frame.setUndecorated(true);
- frame.addNotify();
- super.init();
+BlueScreen bs;
+int count = 0;
+boolean rotate = false; // If this is true, rotates sketch 90 degrees clockwise in frame
+
+void settings() {
+  fullScreen(P3D);
 }
 
 
-BlueScreen bs;
-int count = 0;
-
 void setup() {
-  size(576, 1024, P3D);
+  
+  surface.setSize(rotate ? 1024 : 576, rotate ? 576 : 1024);
+  
+  //surface.setSize(576,1024);
+  surface.setLocation(500,30);
+  surface.hideCursor();
   bs = new BlueScreen();
+  bs.setDimensions(rotate ? 1024 : 576, rotate ? 576 : 1024);
   bs.start(); 
 }
 
 void draw() {
+  fill(255);
+  pushMatrix();
+  if (rotate) {
+    translate(1024/2,-220,0);
+    rotateZ(PI/2);   
+  }
   bs.loop();
+  
+  popMatrix();
+  
 }
+
 
 void pollQuery() {
   bs.al.pollQuery();

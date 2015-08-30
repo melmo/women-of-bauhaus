@@ -10,6 +10,8 @@ class BlueScreen {
   PFont bsFont;
   String bsodText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
   int bsodCursor = 0;
+  int localWidth;
+  int localHeight;
   
   public BlueScreen() {
     
@@ -37,6 +39,12 @@ class BlueScreen {
     
   }
   
+  void setDimensions(int theWidth, int theHeight) {
+    localWidth = theWidth;
+    localHeight = theHeight;
+    anim.setDimensions( theWidth,  theHeight);
+  }
+  
   void start() {
     bsState = BSState.DISTORTED;
     time = millis();
@@ -59,7 +67,7 @@ class BlueScreen {
   
   void showBSOD() {
     fill(0,0,255);
-    rect(0,0,width,height);
+    rect(0,0,localWidth,localHeight);
     fill(255);
     textSize(18);
     textAlign(LEFT);
@@ -69,7 +77,7 @@ class BlueScreen {
     } else {
       tmpText = bsodText;
     }
-    text(tmpText,20,20, width - 40,height - 40);
+    text(tmpText,20,20, localWidth - 40,localHeight - 40);
     bsodCursor++;
   }
   
@@ -77,7 +85,7 @@ class BlueScreen {
     textAlign(CENTER);
     textSize(28);
     textFont(bsFont);
-    text("#" + hashtag, 0, height - 200, width, 68);
+    text("#" + hashtag, 0, localHeight - 200, localWidth, 100);
     
   }
   
@@ -103,7 +111,7 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
-        if (millis() - time > 10000) {
+        if (millis() - time > 10000) { // Time in undistorted state
           time = millis();
           bsState = BSState.BLUESCREEN;
         }
@@ -117,10 +125,10 @@ class BlueScreen {
       break;
       case BLUESCREEN :
         background(0,0,255,25);
-        //rect(0,0,width,height);
+        //rect(0,0,localWidth,height);
         fill(255);
         //text("BLUESCREEN", 200.0,300.0,0.0);
-        if (millis() - time > 20000) {
+        if (millis() - time > 200) {
           time = millis();
           currentWork++;
           if (currentWork == artworks.length) {

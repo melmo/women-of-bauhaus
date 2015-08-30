@@ -4,17 +4,17 @@ class AllListener {
   InstagramListener il;
   
   public AllListener() {
-    tl = new TwitterListener(this);
-    il = new InstagramListener(this);
+    //tl = new TwitterListener(this);
+    //il = new InstagramListener(this);
   }
   
   void setQuery(String query) {
-    tl.setQuery(query);
-    il.setQuery(query);
+    //tl.setQuery(query);
+    //il.setQuery(query);
   }
   
   void pollQuery() {
-    il.pollQuery();  
+    //il.pollQuery();  
   }
   
   void logSuccess(SuccessMessage sm) {
