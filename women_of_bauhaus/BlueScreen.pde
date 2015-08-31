@@ -8,8 +8,11 @@ class BlueScreen {
   int currentWork;
   Animation anim;
   PFont bsFont;
-  String bsodText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+  PFont bsFontSmall;
+  PFont bsFontItalic;
+  String bsodText = "Ein Fehler ist aufgetreten. Der Hashtag #artist wurde nicht verwendet. \r\n\t\r\nEs liegt in unserer gesellschaftlichen Verantwortung, das Andenken an die vorgestellten Künstlerinnen zu erhalten. Sie können mithelfen, indem Sie Ihr Wissen zu diesen Persönlichkeiten mit der Welt teilen. \r\nUm Informationen zur nächsten Künstlerin zu verbreiten, benutzen Sie bitte den angezeigten Hashtag auf Twitter oder Instagram. Dadurch wird das Werk der Künstlerin direkt hier enthüllt. \r\n\t\r\nWenn Sie die angezeigten Hashtags benutzen, wird dieser Fehler nicht noch einmal auftreten. \r\n\t\r\nError: #artist : #0000ff \r\n\t\r\n\t\r\nhttp://www.bluescreenofbauhaus.de";
   int bsodCursor = 0;
+  int bsodTransitionCounter = 800;
   int localWidth;
   int localHeight;
   boolean rotate;
@@ -18,7 +21,9 @@ class BlueScreen {
     
     bsState = BSState.BLUESCREEN;
     anim = new Animation();
-    bsFont = createFont("Lucida Console", 28);
+    bsFont = loadFont("Cabin-Regular-28.vlw");
+    bsFontItalic = loadFont("Cabin-Italic-28.vlw");
+    bsFontSmall = loadFont("VT323-Regular-28.vlw");
     
     table = loadTable("artists.csv", "header");
     artworks = new Artwork[table.getRowCount()];
@@ -69,44 +74,79 @@ class BlueScreen {
   }
   
   void showBSOD() {
-    background(0);
-    pushMatrix();
-    fill(0,0,255);
-    if (rotate) {
-      translate(220,-512,0);
-      rect(0,0,localHeight,localWidth);
-    } else {
-      rect(0,0,localWidth,localHeight);
+    if (millis() - time < 6000) {
+      pushMatrix();
+      anim.runAnimation();
+      popMatrix();
+      resetShader();
+      showTag();
     }
-    fill(255);
-    textSize(18);
-    textAlign(LEFT);
-    String tmpText;
-    if (bsodCursor < bsodText.length()) {
-      tmpText = bsodText.substring(0, bsodCursor);
-    } else {
-      tmpText = bsodText;
+    if (millis() - time >= 6000 || (millis()/bsodTransitionCounter)%2 ==0) {
+      pushMatrix();
+      fill(0,0,255);
+      textAlign(CENTER);
+      textFont(bsFontSmall);
+      textSize(28);
+      if (rotate) {
+        translate(220,-512,0);
+        rect(0,0,localHeight,localWidth);
+        if (millis() - time >= 6000) {
+          fill(180,180,180);
+          rect(120,120, localHeight-240,30);
+          fill(0,0,255);
+          text("Bluescreen of Bauhaus",80,126, localHeight-160,40);
+        }
+      } else {
+        rect(0,0,localWidth,localHeight);
+        if (millis() - time >= 6000) {
+          
+          fill(180,180,180);
+          rect(120,120, localWidth-240,30);
+          fill(0,0,255);
+          text("Bluescreen of Bauhaus",80,126, localWidth-160,40);
+        }
+      }
+      popMatrix();
+      
     }
-    if (rotate) {
-      text(tmpText,20,20, localWidth-480,400);
-    } else {
-      text(tmpText,20,20, localWidth-40,localHeight - 40);
+    if (millis() - time >= 7500) {
+      pushMatrix();
+      fill(230);
+      textAlign(LEFT);
+      String fullTmpText = bsodText.replaceAll("#artist", "#" + artworks[currentWork].hashtag);
+      String tmpText;
+      if (bsodCursor < fullTmpText.length()) {
+        tmpText = fullTmpText.substring(0, bsodCursor);
+      } else {
+        tmpText = fullTmpText;
+        if ((millis()/400)%2 ==0) {
+          tmpText += " _";
+        }
+      }
+      if (rotate) {
+        translate(220,-512,0);
+        text(tmpText,20,220, localHeight-40,localWidth-40);
+      } else {
+        text(tmpText,20,220, localWidth-40,localHeight - 40);
+      }
+      
+      popMatrix();
+      bsodCursor++;
     }
-    
-    popMatrix();
-    bsodCursor++;
+    bsodTransitionCounter = max(floor(bsodTransitionCounter*.99),1);
   }
   
   void showTag() {
     textAlign(CENTER);
     textSize(28);
     textFont(bsFont);
-    fill(255);
+    fill(230);
     lights();
     text("#" + artworks[currentWork].hashtag, 0, localHeight - 200, localWidth, 100);
     switch(bsState) {
       case UNDISTORTED :
-        fill(255,255,255,min((millis() - time)/20,255));
+        fill(230,230,230,min((millis() - time)/20,255));
+        textFont(bsFontItalic);
         text(artworks[currentWork].title, 0, localHeight - 150, localWidth, 100);
         break;
     }
@@ -134,6 +174,7 @@ class BlueScreen {
         if (millis() - time > 420000) { // should be 420000 (7 minutes)
           time = millis();
           bsodCursor = 0;
+          bsodTransitionCounter = 800;
           bsState = BSState.BSOD;
         }
       

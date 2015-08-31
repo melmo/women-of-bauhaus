@@ -15,7 +15,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 BlueScreen bs;
 int count = 0;
-boolean rotate = true; // If this is true, rotates sketch 90 degrees clockwise in frame
+boolean rotate = false; // If this is true, rotates sketch 90 degrees clockwise in frame
 
 /*
 void settings() {
@@ -23,8 +23,8 @@ void settings() {
 }
 */
 void setup() {
-  size(576, 1024, P3D);
-  surface.setSize(rotate ? 1024 : 576, rotate ? 576 : 1024);
+  size(1024, 576, P3D);
+  //surface.setSize(rotate ? 1024 : 576, rotate ? 576 : 1024);
   surface.hideCursor();
   bs = new BlueScreen();
   bs.setDimensions(rotate ? 1024 : 576, rotate ? 576 : 1024, rotate);
