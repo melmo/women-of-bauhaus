@@ -15,7 +15,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 BlueScreen bs;
 int count = 0;
-boolean rotate = false; // If this is true, rotates sketch 90 degrees clockwise in frame
+boolean rotate = true; // If this is true, rotates sketch 90 degrees clockwise in frame
 
 void settings() {
   fullScreen(P3D);
