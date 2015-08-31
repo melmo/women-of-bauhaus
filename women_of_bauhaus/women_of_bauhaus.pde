@@ -17,12 +17,13 @@ BlueScreen bs;
 int count = 0;
 boolean rotate = false; // If this is true, rotates sketch 90 degrees clockwise in frame
 
+/*
 void settings() {
   fullScreen(P3D);
 }
-
-
+*/
 void setup() {
+  size(576, 1024, P3D);
   surface.setSize(rotate ? 1024 : 576, rotate ? 576 : 1024);
   surface.hideCursor();
   bs = new BlueScreen();
