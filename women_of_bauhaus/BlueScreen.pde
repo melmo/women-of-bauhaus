@@ -12,6 +12,7 @@ class BlueScreen {
   int bsodCursor = 0;
   int localWidth;
   int localHeight;
+  boolean rotate;
   
   public BlueScreen() {
     
@@ -42,6 +43,7 @@ class BlueScreen {
   void setDimensions(int theWidth, int theHeight, boolean rotate) {
     localWidth = theWidth;
     localHeight = theHeight;
+    this.rotate = rotate;
     anim.setDimensions( theWidth,  theHeight, rotate);
   }
   
@@ -67,8 +69,15 @@ class BlueScreen {
   }
   
   void showBSOD() {
+    background(0);
+    pushMatrix();
     fill(0,0,255);
-    rect(0,0,localWidth,localHeight);
+    if (rotate) {
+      translate(220,-512,0);
+      rect(0,0,localHeight,localWidth);
+    } else {
+      rect(0,0,localWidth,localHeight);
+    }
     fill(255);
     textSize(18);
     textAlign(LEFT);
@@ -78,7 +87,13 @@ class BlueScreen {
     } else {
       tmpText = bsodText;
     }
-    text(tmpText,20,20, localWidth - 40,localHeight - 40);
+    if (rotate) {
+      text(tmpText,20,20, localWidth-480,400);
+    } else {
+      text(tmpText,20,20, localWidth-40,localHeight - 40);
+    }
+    
+    popMatrix();
     bsodCursor++;
   }
   
@@ -87,9 +102,11 @@ class BlueScreen {
     textSize(28);
     textFont(bsFont);
     fill(255);
+    lights();
     text("#" + artworks[currentWork].hashtag, 0, localHeight - 200, localWidth, 100);
     switch(bsState) {
       case UNDISTORTED :
+        fill(255,255,255,min((millis() - time)/20,255));
         text(artworks[currentWork].title, 0, localHeight - 150, localWidth, 100);
         break;
     }
@@ -107,8 +124,14 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
+        resetShader();
         showTag();
-        if (millis() - time > 100000) { // should be 420000 (7 minutes)
+        fill(0,0,255,max(255 - ((millis() - time)/10),0));
+        pushMatrix();
+        translate(220,-512,0);
+        rect(0,0,localHeight,localWidth);
+        popMatrix();
+        if (millis() - time > 420000) { // should be 420000 (7 minutes)
           time = millis();
           bsodCursor = 0;
           bsState = BSState.BSOD;
@@ -119,23 +142,28 @@ class BlueScreen {
         pushMatrix();
         anim.runAnimation();
         popMatrix();
+        resetShader();
         showTag();
-        if (millis() - time > 2000) { // Should be 240000 (4 minutes)
+        if (millis() - time > 240000) { // Should be 240000 (4 minutes)
           time = millis();
           bsState = BSState.BLUESCREEN;
         }
       break;
       case BSOD :
+        resetShader();
         showBSOD();
-        if (millis() - time > 30000) { // should be 90000 (90 seconds)
+        if (millis() - time > 90000) { // should be 90000 (90 seconds)
           time = millis();
           bsState = BSState.BLUESCREEN;
         }
       break;
       case BLUESCREEN :
-        background(0,0,255,25);
-        fill(255);
-        if (millis() - time > 200) {
+        fill(0,0,255,25);
+        pushMatrix();
+        translate(220,-512,0);
+        rect(0,0,localHeight,localWidth);
+        popMatrix();
+        if (millis() - time > 2000) {
           time = millis();
           currentWork++;
           if (currentWork == artworks.length) {

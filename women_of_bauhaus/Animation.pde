@@ -167,6 +167,7 @@ class Animation {
   }
   
   void runAnimation() { // run from draw() in Mel's sketch
+    shader(texlightShader);
 /*
     if(lightUp > 0) {
       bg = color(75 - abs(75 - lightUp), 75 - abs(75 - lightUp), 150 - abs(75 - lightUp));

@@ -36,7 +36,7 @@ class InstagramListener {
       polling = true;
       while (result.getMeta().isSuccess() && result.getData().length > 0 && polling) {
         for (org.instagram4j.entity.Media media : result.getData()) {
-          println(media.getCaption().getText());
+          //println(media.getCaption().getText());
           long mediaTime = Long.parseLong(media.getCreatedTime(), 10) * 1000;
           if (mediaTime > lastPollTime) {
             SuccessMessage sm = new SuccessMessage("instagram", query, media.getUser().getFullName(), media.getCaption().getText());
@@ -61,5 +61,3 @@ class InstagramListener {
     parentListener.logSuccess(sm);
   }
 }
-
-
