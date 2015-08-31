@@ -13,7 +13,7 @@ class Animation {
   int numMax = 35; // divisions along larger axis (height or width of image)
   int numa = numMax; // number of columns
   int numb = numMax; // number of rows
-  int subDivisions = 5; // number of quads inside each division
+  int subDivisions = 4; // number of quads inside each division
   float elementWidth = 10; // width and height of row/column (in pixels)
   PVector[][] Init = new PVector[numa][numb]; // init position
   PVector[][] X = new PVector[numa][numb]; // current position
@@ -49,15 +49,16 @@ class Animation {
   float yRotation = 0.25; // Amount of rotation on y-axis
 
   // Magnitude of explosion effect
-  float magnitude = 0.0;
+  float maxMagnitude;
+  float currentMagnitude;
   boolean exploding = false;
 
   // gravity resists the wind force by making the flag gravitate toward its initial state (i.e. flat)
   float gravity = 0.0; // Turn up to 0.1 to reduce amount of "waving in the wind"
   // the wind force begins at windStart and moves toward windEnd by windIncrement each draw cycle
-  float windStart = 0.2; // The beginning amount of wind force
-  float windEnd = 0.05; // The final amount of wind force
-  float windIncrement = 0.0002; // The increment by which the wind force is changed each draw cycle
+  float windStart = 0.15; // The beginning amount of wind force
+  float windEnd = 0.025; // The final amount of wind force
+  float windIncrement = 0.0008; // The increment by which the wind force is changed each draw cycle
   float wind = windStart; // The current wind force at any given time
   
   // Flying light effect
@@ -101,7 +102,8 @@ class Animation {
     xRotation = 0.0; // Amount of rotation on x-axis
     yRotation = 0.25; // Amount of rotation on y-axis
   
-    magnitude = 0.0;
+    maxMagnitude = 0.35; // Sets the magnitude of the explosion effect
+    currentMagnitude = 0.0; // The current magnitude at any given time
     exploding = false;
   
     gravity = 0.0; // Turn up to 0.1 to reduce amount of "waving in the wind"
@@ -132,12 +134,12 @@ class Animation {
     //zTranslate = ((localWidth - 30) - flag.width) * 1.42298;
     
 
-    texlightShader.set("magnitude", magnitude); // Magnitude of vector distortion in vertex shader
+    texlightShader.set("magnitude", currentMagnitude); // Magnitude of vector distortion in vertex shader
     texlightShader.set("offset", 0.25);
     texlightShader.set("amplitude", 0.05);
     
     for(int i = 0; i < 6; i++) {
-      specularContribution[i] = 0.05;
+      specularContribution[i] = 0.0;
       diffuseContribution[i] = 0.15;
       ambientLight[i] = 0.3;
     }
@@ -195,13 +197,13 @@ class Animation {
           cubismEffect = 0.0;
         }
       }
-      if (magnitude != 0.0) {
-        magnitude -= 0.006;
-        if(magnitude < 0.0) {
-          magnitude = 0.0;
+      if (currentMagnitude != 0.0) {
+        currentMagnitude -= maxMagnitude / 83;
+        if(currentMagnitude < 0.0) {
+          currentMagnitude = 0.0;
           exploding = false;
         }
-        texlightShader.set("magnitude", magnitude * flag.width / 2.0); // Magnitude of vector distortion
+        texlightShader.set("magnitude", currentMagnitude * flag.width * maxMagnitude); // Magnitude of vector distortion
       }
     } else { // Still in distorted phase
         if(((localFrameCount + 300)%700.0) <= 200) {
@@ -228,23 +230,23 @@ class Animation {
         transparency = 255 - (int)((0.5 - abs(0.5 - transparencyCycle)) * 2 * 175);
       }
     
-      if(magnitude <= 0.0) {
-        magnitude = 0.0;
+      if(currentMagnitude <= 0.0) {
+        currentMagnitude = 0.0;
         cubismEffect = 0.7 + 0.3 * noise(localFrameCount / 100.0);
         if(localFrameCount%700 == 0) {
           exploding = true;
-          magnitude += 0.05;
-          texlightShader.set("magnitude", magnitude * flag.width / 2.0); // Magnitude of vector distortion
+          currentMagnitude += maxMagnitude / 10;
+          texlightShader.set("magnitude", currentMagnitude * flag.width * maxMagnitude); // Magnitude of vector distortion
         }
-      } else if (exploding && magnitude < 1.5) {
+      } else if (exploding && currentMagnitude < maxMagnitude * 3) {
         cubismEffect -= 0.025 / 1.5;
-        magnitude += 0.025;
-        texlightShader.set("magnitude", magnitude * flag.width / 2.0); // Magnitude of vector distortion
+        currentMagnitude += maxMagnitude / 20;
+        texlightShader.set("magnitude", currentMagnitude * flag.width * maxMagnitude); // Magnitude of vector distortion
       } else {
         exploding = false;
         cubismEffect += 0.006 / 1.5;
-        magnitude -= 0.006;
-        texlightShader.set("magnitude", magnitude * flag.width / 2.0); // Magnitude of vector distortion
+        currentMagnitude -= maxMagnitude / 83;
+        texlightShader.set("magnitude", currentMagnitude * flag.width * maxMagnitude); // Magnitude of vector distortion
       }
   
       if(!setWindowPosition){
@@ -261,21 +263,24 @@ class Animation {
     time = (localFrameCount % 500) / 500.0;
     texlightShader.set("breathCycle", time);
     
-    //background(bg);
+    // Make a black background on the entire screen
     background(0);
+    // Draw a blue rectangle in the working space
     fill(bg);
     pushMatrix();
     translate(0,0,-3000);
     box(10000.0,10000.0,2.0);
     popMatrix();
-    physics(); // Apply physical forces
+    // Apply physical forces
+    physics();
+    // Add main lights
     pointLight(255, 255, 255, localWidth / 3, localHeight / 3, 0);
     pointLight(255, 255, 255, -localWidth / 3, -localHeight / 3, 0);
 
     //Zubi translations and rotations
     applyTransformations();
 
-    // Falling lights
+    // Falling lights (effects)
     for (int i = 0;i < numLights; i++) {
       PVector lp = lightsPos[i];
       // Lights don't turn suddenly on and off, they fade on and off as they come on and off screen
@@ -308,15 +313,15 @@ class Animation {
   void applyTransformations() {
     if(distorted) {
       if(localFrameCount > 100) {
-        xRotation = (xRotation + random(0.5, 1.5) * (0.0013 * speedOfMovement))%1.0;
-        yRotation = (yRotation + random(0.5, 1.5) * (0.002 * speedOfMovement))%1.0;
+        xRotation = (xRotation + random(0.5, 1.5) * (0.0013 * speedOfMovement)) % 1.0;
+        yRotation = (yRotation + random(0.5, 1.5) * (0.002 * speedOfMovement)) % 1.0;
       }
     } else {
       if(xRotation > 0.0) {
-        xRotation -= 0.0026 * speedOfMovement;
+        xRotation = (xRotation > 0.5) ? (xRotation + 0.0026 * speedOfMovement) % 1.0 : xRotation - 0.0026 * speedOfMovement;
       }
       if(yRotation > 0.0) {
-        yRotation -= 0.0035 * speedOfMovement;
+        yRotation = (yRotation > 0.5) ? (yRotation + 0.0035 * speedOfMovement) % 1.0 : yRotation - 0.0035 * speedOfMovement;
       }
       if(xRotation < 0.0) {
         xRotation = 0.0;
